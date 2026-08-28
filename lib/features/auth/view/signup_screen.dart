@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/constants/app_colors.dart';
@@ -5,6 +6,8 @@ import '../../../../core/validators/app_validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_header.dart';
+import '../domain/repositories/auth_repository_impl.dart';
+import '../domain/usecases/signup.dart';
 import 'login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -15,6 +18,7 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final TextEditingController _nameController = TextEditingController();
@@ -25,6 +29,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   bool _isPasswordVisible = false;
   bool _acceptedTerms = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -35,7 +40,52 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  void _signUp() {
+  Future<void> _showMessageDialog({
+    required String title,
+    required String message,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getFirebaseErrorMessage(FirebaseAuthException e,) {
+    switch (e.code) {
+      case 'email-already-in-use':
+        return 'This email is already registered.';
+
+      case 'weak-password':
+        return 'The password is too weak.';
+
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+
+      case 'operation-not-allowed':
+        return 'Email/password authentication is not enabled.';
+
+      case 'network-request-failed':
+        return 'Please check your internet connection.';
+
+      default:
+        return e.message ?? 'Unable to create your account.';
+    }
+  }
+
+  Future<void> _signUp() async {
     final isFormValid = _formKey.currentState!.validate();
 
     if (!_acceptedTerms) {
@@ -54,12 +104,57 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Firebase هنضيفه هنا بعدين.
+    setState(() {
+      _isLoading = true;
+    });
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoginScreen()),
-    );
+    try {
+      final repository = AuthRepositoryImpl();
+
+      final signUp = SignUp(repository);
+
+      await signUp(
+        name: _nameController.text.trim(),
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      await _showMessageDialog(
+        title: 'Account Created',
+        message: 'Your account has been created successfully.',
+      );
+
+      if (!mounted) return;
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      await _showMessageDialog(
+        title: 'Sign Up Failed',
+        message: _getFirebaseErrorMessage(e),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      await _showMessageDialog(
+        title: 'Something Went Wrong',
+        message: 'Please try again later.',
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   @override
@@ -191,7 +286,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
                 const SizedBox(height: 25),
 
-                AppButton(title: 'Sign Up', onPressed: _signUp),
+                AppButton(
+                  title: 'Sign Up',
+                  onPressed: _signUp,
+                  isLoading: _isLoading,
+                ),
 
                 const SizedBox(height: 18),
 
@@ -232,3 +331,4 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 }
+

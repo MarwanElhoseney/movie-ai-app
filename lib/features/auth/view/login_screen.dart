@@ -1,9 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/validators/app_validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_header.dart';
+import '../../home/view/home_screen.dart';
+import '../domain/repositories/auth_repository_impl.dart';
+import '../domain/usecases/login.dart';
 import 'reset_password_screen.dart';
 import 'signup_screen.dart';
 
@@ -22,6 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,17 +36,110 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
+  Future<void> _showMessageDialog({
+    required String title,
+    required String message,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  String _getFirebaseErrorMessage(FirebaseAuthException e,) {
+    switch (e.code) {
+      case 'invalid-credential':
+        return 'The email or password is incorrect.';
+
+      case 'invalid-email':
+        return 'Please enter a valid email address.';
+
+      case 'user-not-found':
+        return 'No account found with this email.';
+
+      case 'wrong-password':
+        return 'The password is incorrect.';
+
+      case 'user-disabled':
+        return 'This account has been disabled.';
+
+      case 'network-request-failed':
+        return 'Please check your internet connection.';
+
+      default:
+        return e.message ?? 'Unable to login.';
+    }
+  }
+
+  Future<void> _login() async {
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
       return;
     }
 
-    // Firebase هنضيفه هنا في المرحلة القادمة.
+    setState(() {
+      _isLoading = true;
+    });
 
-    debugPrint('Email: ${_emailController.text.trim()}');
-    debugPrint('Password: ${_passwordController.text}');
+    try {
+      final repository = AuthRepositoryImpl();
+
+      final login = Login(repository);
+
+      await login(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => HomeScreen(),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      await _showMessageDialog(
+        title: 'Login Failed',
+        message: _getFirebaseErrorMessage(e),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      await _showMessageDialog(
+        title: 'Something Went Wrong',
+        message: 'Please try again later.',
+      );
+    }
   }
 
   @override
@@ -120,8 +218,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 25),
 
-                AppButton(title: 'Login', onPressed: _login),
-
+                AppButton(
+                  title: 'Login',
+                  onPressed: _login,
+                  isLoading: _isLoading,
+                ),
                 const SizedBox(height: 18),
 
                 Row(
@@ -160,3 +261,5 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
+
+

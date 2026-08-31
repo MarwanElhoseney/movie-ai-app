@@ -59,4 +59,17 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     await _remoteDataSource.logout();
   }
+
+  @override
+  Future<User> signInWithGoogle() async {
+    final credential = await _remoteDataSource.signInWithGoogle();
+
+    final firebaseUser = credential.user!;
+
+    return User(
+      id: firebaseUser.uid,
+      name: firebaseUser.displayName ?? '',
+      email: firebaseUser.email ?? '',
+    );
+  }
 }

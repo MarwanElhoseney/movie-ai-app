@@ -1,6 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:movie_app/features/auth/view/verfication_screen.dart';
 
 import '../../../../core/validators/app_validators.dart';
 import '../../../../core/widgets/app_button.dart';
@@ -44,8 +43,10 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
       final checkEmailExists = CheckEmailExists(repository);
 
+      final email = _emailController.text.trim();
+
       final emailExists = await checkEmailExists(
-        email: _emailController.text.trim(),
+        email: email,
       );
 
       if (!mounted) return;
@@ -53,29 +54,39 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
       if (!emailExists) {
         await _showMessageDialog(
           title: 'Email Not Found',
-          message: 'No account was found with this email address.',
+          message:
+          'This email does not exist or has not been verified.',
         );
 
         return;
       }
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) =>
-              VerificationScreen(
-                email: _emailController.text.trim(),
-              ),
-        ),
+      final resetPassword = ResetPassword(repository);
+
+      await resetPassword(
+        email: email,
       );
-    } catch (e) {
-      debugPrint('RESET PASSWORD ERROR: $e');
 
       if (!mounted) return;
 
       await _showMessageDialog(
-        title: 'Error',
-        message: e.toString(),
+        title: 'Reset Link Sent',
+        message:
+        'A password reset link has been sent to your email.',
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+
+      await _showMessageDialog(
+        title: 'Reset Password Failed',
+        message: _getFirebaseErrorMessage(e),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      await _showMessageDialog(
+        title: 'Something Went Wrong',
+        message: 'Please try again later.',
       );
     } finally {
       if (mounted) {
@@ -83,6 +94,25 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  String _getFirebaseErrorMessage(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'invalid-email':
+        return 'The email address is invalid.';
+
+      case 'user-not-found':
+        return 'No account was found with this email address.';
+
+      case 'too-many-requests':
+        return 'Too many requests. Please try again later.';
+
+      case 'network-request-failed':
+        return 'Please check your internet connection.';
+
+      default:
+        return e.message ?? 'Something went wrong. Please try again.';
     }
   }
 
@@ -109,24 +139,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
     );
   }
 
-  String _getFirebaseErrorMessage(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
-        return 'The email address is invalid.';
 
-      case 'user-not-found':
-        return 'No account found with this email address.';
-
-      case 'too-many-requests':
-        return 'Too many requests. Please try again later.';
-
-      case 'network-request-failed':
-        return 'Please check your internet connection.';
-
-      default:
-        return e.message ?? 'Something went wrong. Please try again.';
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

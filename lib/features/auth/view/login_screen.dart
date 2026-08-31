@@ -59,28 +59,31 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  String _getFirebaseErrorMessage(FirebaseAuthException e,) {
+  String _getFirebaseErrorMessage(FirebaseAuthException e) {
     switch (e.code) {
-      case 'invalid-credential':
-        return 'The email or password is incorrect.';
-
       case 'invalid-email':
-        return 'Please enter a valid email address.';
+        return 'The email address is invalid.';
 
       case 'user-not-found':
-        return 'No account found with this email.';
+        return 'No account found with this email address.';
 
       case 'wrong-password':
-        return 'The password is incorrect.';
+        return 'Incorrect password.';
 
-      case 'user-disabled':
-        return 'This account has been disabled.';
+      case 'invalid-credential':
+        return 'Incorrect email or password.';
+
+      case 'email-not-verified':
+        return 'Please verify your email before logging in.';
+
+      case 'too-many-requests':
+        return 'Too many requests. Please try again later.';
 
       case 'network-request-failed':
         return 'Please check your internet connection.';
 
       default:
-        return e.message ?? 'Unable to login.';
+        return e.message ?? 'Something went wrong. Please try again.';
     }
   }
 

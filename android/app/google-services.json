@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "697902387316",
+    "project_id": "moive-ai-app",
+    "storage_bucket": "moive-ai-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:697902387316:android:c7015aa9880d49b9da8121",
+        "android_client_info": {
+          "package_name": "com.example.movie_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "697902387316-313iibnc3ms1d0pd60dms98c51b0k1ub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.movie_app",
+            "certificate_hash": "193b0c27cc82cc30d81bf087023fcfd6722fde8c"
+          }
+        },
+        {
+          "client_id": "697902387316-u2dlvgeq66147lsm83sl75k8gn9t91fd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-gbUBE9sqMQuRdZdg8JkvR6jYLh81AUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "697902387316-u2dlvgeq66147lsm83sl75k8gn9t91fd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "697902387316-eurqjgnk5ag3m0t60mfk475aum3nefgt.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.movieApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

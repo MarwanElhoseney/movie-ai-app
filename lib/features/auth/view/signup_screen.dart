@@ -123,7 +123,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
       await _showMessageDialog(
         title: 'Account Created',
-        message: 'Your account has been created successfully.',
+        message:
+        'Your account has been created successfully.\n\n'
+            'We have sent a verification email to your email address. '
+            'Please verify your email before logging in.',
       );
 
       if (!mounted) return;

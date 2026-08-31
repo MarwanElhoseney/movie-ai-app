@@ -5,7 +5,11 @@ class ResetPassword {
 
   ResetPassword(this.repository);
 
-  Future<void> call({required String email}) async {
-    await repository.resetPassword(email: email);
+  Future<void> call({
+    required String email,
+  }) {
+    return repository.resetPassword(
+      email: email,
+    );
   }
 }

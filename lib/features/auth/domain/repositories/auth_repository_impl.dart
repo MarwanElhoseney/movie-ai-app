@@ -1,3 +1,5 @@
+import 'package:movie_app/features/auth/data/datasources/auth_remote_data_source_impl.dart';
+
 import '../../data/datasources/auth_remote_data_source.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -6,7 +8,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
 
   AuthRepositoryImpl({AuthRemoteDataSource? remoteDataSource})
-    : _remoteDataSource = remoteDataSource ?? AuthRemoteDataSource();
+    : _remoteDataSource = remoteDataSource ?? AuthRemoteDataSourceImpl();
 
   @override
   Future<User> login({required String email, required String password}) async {

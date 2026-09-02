@@ -45,7 +45,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
       final email = _emailController.text.trim();
 
-      final emailExists = await checkEmailExists(
+      final emailExists = await checkEmailExists.call(
         email: email,
       );
 

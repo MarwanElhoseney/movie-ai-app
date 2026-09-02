@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../home/view/home_screen.dart';
+import '../../../core/navigation/main_shell/view/main_shell.dart';
+import '../../wishlist/view/wishlist_provider.dart';
 import '../domain/repositories/auth_repository_impl.dart';
 import '../domain/usecases/sign_in_with_google.dart';
 import 'login_screen.dart';
@@ -33,7 +35,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
       final signInWithGoogle = SignInWithGoogle(repository);
 
-      await signInWithGoogle();
+      final user = await signInWithGoogle();
 
       if (!mounted) return;
 
@@ -41,7 +43,18 @@ class _AuthScreenState extends State<AuthScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => HomeScreen(),
+          builder: (_) {
+            return ChangeNotifierProvider(
+              create: (_) =>
+              WishlistProvider(
+                userId: user.id,
+              )
+                ..loadWishlist(),
+              child: MainShell(
+                user: user,
+              ),
+            );
+          },
         ),
       );
     } on FirebaseAuthException catch (e) {

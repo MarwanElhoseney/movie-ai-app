@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/validators/app_validators.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/auth_header.dart';
-import '../../home/view/home_screen.dart';
+import '../../../core/navigation/main_shell/view/main_shell.dart';
+import '../../wishlist/view/wishlist_provider.dart';
 import '../domain/repositories/auth_repository_impl.dart';
 import '../domain/usecases/login.dart';
 import 'reset_password_screen.dart';
@@ -88,6 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _login() async {
+
     final isValid = _formKey.currentState!.validate();
 
     if (!isValid) {
@@ -103,7 +106,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       final login = Login(repository);
 
-      await login(
+      final user = await login.call(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
@@ -117,7 +120,18 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => HomeScreen(),
+          builder: (_) {
+            return ChangeNotifierProvider(
+              create: (_) =>
+              WishlistProvider(
+                userId: user.id,
+              )
+                ..loadWishlist(),
+              child: MainShell(
+                user: user,
+              ),
+            );
+          },
         ),
       );
     } on FirebaseAuthException catch (e) {

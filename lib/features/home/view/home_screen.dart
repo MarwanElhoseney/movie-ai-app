@@ -5,6 +5,7 @@ import 'package:movie_app/features/home/view/widgets/home_header.dart';
 import 'package:movie_app/features/home/view/widgets/popular_movies.dart';
 import 'package:movie_app/features/home/view/widgets/search_preview.dart';
 import 'package:provider/provider.dart';
+
 import '../../auth/domain/entities/user.dart';
 import '../../movie_details/view/movie_details_screen.dart';
 import '../../movies/domain/entities/movie.dart';
@@ -14,6 +15,7 @@ import '../../search/view/search_screen.dart';
 import '../../wishlist/view/wishlist_provider.dart';
 import '../data/repositories/home_repository_impl.dart';
 import '../domain/usecases/get_home_movies.dart';
+import '../domain/usecases/get_movies_by_genre.dart';
 
 
 class HomeScreen extends StatefulWidget {
@@ -32,20 +34,27 @@ class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Movie>> _moviesFuture;
 
   late final GetHomeMovies _getHomeMovies;
+  late final GetMoviesByGenre _getMoviesByGenre;
 
+  int selectedCategory = 0;
+
+  late Future<List<Movie>> _categoryMoviesFuture;
+
+  @override
   @override
   void initState() {
     super.initState();
 
-    _getHomeMovies = GetHomeMovies(
-      HomeRepositoryImpl(),
-    );
+    final repository = HomeRepositoryImpl();
+
+    _getHomeMovies = GetHomeMovies(repository);
+    _getMoviesByGenre = GetMoviesByGenre(repository);
 
     _loadMovies();
   }
-
   void _loadMovies() {
     _moviesFuture = _getHomeMovies();
+    _categoryMoviesFuture = _moviesFuture;
   }
 
   Future<void> _refreshMovies() async {
@@ -83,6 +92,28 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       ),
     );
+  }
+
+  void _selectCategory(int index) {
+    setState(() {
+      selectedCategory = index;
+
+      if (index == 0) {
+        _categoryMoviesFuture = _getHomeMovies();
+        return;
+      }
+
+      const genreIds = {
+        1: 35, // Comedy
+        2: 16, // Animation
+        3: 99, // Documentary
+        4: 28, // Action
+      };
+
+      final genreId = genreIds[index];
+
+      _categoryMoviesFuture = _getMoviesByGenre(genreId!);
+    });
   }
 
   void _showSearchFilter() {
@@ -241,6 +272,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             'Documentary',
                             'Action',
                           ],
+                          onCategorySelected: _selectCategory,
                         ),
 
                         const SizedBox(height: 20),
@@ -271,9 +303,58 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         const SizedBox(height: 10),
 
-                        PopularMovies(
-                          movies: movies,
-                          onMovieTap: _openMovieDetails,
+                        FutureBuilder<List<Movie>>(
+                          future: _categoryMoviesFuture,
+                          builder: (context, categorySnapshot) {
+                            if (categorySnapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const SizedBox(
+                                height: 180,
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Color(0xFF00D5E6),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            if (categorySnapshot.hasError) {
+                              return const SizedBox(
+                                height: 180,
+                                child: Center(
+                                  child: Text(
+                                    'Something went wrong',
+                                    style: TextStyle(
+                                      color: Colors.white38,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            final categoryMovies = categorySnapshot.data ?? [];
+
+                            if (categoryMovies.isEmpty) {
+                              return const SizedBox(
+                                height: 180,
+                                child: Center(
+                                  child: Text(
+                                    'No movies found',
+                                    style: TextStyle(
+                                      color: Colors.white38,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
+                            return PopularMovies(
+                              movies: categoryMovies,
+                              onMovieTap: _openMovieDetails,
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 10),

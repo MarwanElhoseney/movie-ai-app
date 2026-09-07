@@ -236,12 +236,10 @@ class _AuthScreenState extends State<AuthScreen> {
                     color: Colors.white,
                     isLoading: _isGoogleLoading,
                     onTap: _signInWithGoogle,
-                    child: const Text(
-                      'G',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Image.asset(
+                      "assets/images/google-logo.jpg",
+                      width: 20,
+                      height: 20,
                     ),
                   ),
 

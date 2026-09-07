@@ -17,12 +17,17 @@ import '../domain/entities/actor.dart';
 import '../domain/entities/search_mode.dart';
 import '../domain/usecases/search_actor.dart';
 import '../domain/usecases/search_movies.dart';
+import 'actor_movies_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   final SearchMode? initialMode;
   final User user;
 
-  const SearchScreen({super.key, this.initialMode, required this.user});
+  const SearchScreen({
+    super.key,
+    this.initialMode,
+    required this.user,
+  });
 
   @override
   State<SearchScreen> createState() => _SearchScreenState();
@@ -63,6 +68,20 @@ class _SearchScreenState extends State<SearchScreen> {
     super.dispose();
   }
 
+  void _cancelSearch() {
+    _debounce?.cancel();
+
+    controller.clear();
+
+    FocusScope.of(context).unfocus();
+
+    setState(() {
+      mode = null;
+      movieResults = [];
+      actorResults = [];
+      isLoading = false;
+    });
+  }
   void _onTextChanged(String value) {
     _debounce?.cancel();
 
@@ -78,7 +97,10 @@ class _SearchScreenState extends State<SearchScreen> {
       return;
     }
 
-    _debounce = Timer(const Duration(milliseconds: 350), () => _search(query));
+    _debounce = Timer(
+      const Duration(milliseconds: 350),
+          () => _search(query),
+    );
   }
 
   Future<void> _search(String query) async {
@@ -144,7 +166,9 @@ class _SearchScreenState extends State<SearchScreen> {
       context: context,
       backgroundColor: const Color(0xFF292736),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
       ),
       builder: (_) {
         return SafeArea(
@@ -164,9 +188,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 18),
-
                 SearchOption(
                   icon: Icons.movie_outlined,
                   title: 'Movie',
@@ -175,7 +197,6 @@ class _SearchScreenState extends State<SearchScreen> {
                     _changeMode(SearchMode.movie);
                   },
                 ),
-
                 SearchOption(
                   icon: Icons.person_outline,
                   title: 'Actor',
@@ -201,7 +222,25 @@ class _SearchScreenState extends State<SearchScreen> {
         builder: (_) {
           return ChangeNotifierProvider.value(
             value: wishlist,
-            child: MovieDetailsScreen(movie: movie),
+            child: MovieDetailsScreen(
+              movie: movie,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _openActorMovies(Actor actor) {
+    final wishlist = context.read<WishlistProvider>();
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) {
+          return ActorMoviesScreen(
+            actor: actor,
+            wishlist: wishlist,
           );
         },
       ),
@@ -214,7 +253,12 @@ class _SearchScreenState extends State<SearchScreen> {
       backgroundColor: const Color(0xFF1F1D2B),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 18, 16, 10),
+          padding: const EdgeInsets.fromLTRB(
+            16,
+            18,
+            16,
+            10,
+          ),
           child: Column(
             children: [
               SearchInput(
@@ -224,17 +268,17 @@ class _SearchScreenState extends State<SearchScreen> {
                 suffixIcon: mode == SearchMode.actor
                     ? Icons.person_outline
                     : Icons.movie_outlined,
-                onCancel: () => Navigator.pop(context),
+                onCancel: _cancelSearch,
                 hint: mode == SearchMode.actor
                     ? 'Search actor...'
                     : mode == SearchMode.movie
                     ? 'Search movie...'
                     : 'Search...',
               ),
-
               const SizedBox(height: 22),
-
-              Expanded(child: _buildContent()),
+              Expanded(
+                child: _buildContent(),
+              ),
             ],
           ),
         ),
@@ -253,14 +297,19 @@ class _SearchScreenState extends State<SearchScreen> {
           mode == SearchMode.movie
               ? 'Search for a movie'
               : 'Search for an actor',
-          style: const TextStyle(color: Colors.white38, fontSize: 10),
+          style: const TextStyle(
+            color: Colors.white38,
+            fontSize: 10,
+          ),
         ),
       );
     }
 
     if (isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Color(0xFF00D5E6)),
+        child: CircularProgressIndicator(
+          color: Color(0xFF00D5E6),
+        ),
       );
     }
 
@@ -281,9 +330,7 @@ class _SearchScreenState extends State<SearchScreen> {
             fontWeight: FontWeight.w600,
           ),
         ),
-
         const SizedBox(height: 12),
-
         Row(
           children: [
             Expanded(
@@ -297,9 +344,7 @@ class _SearchScreenState extends State<SearchScreen> {
                 },
               ),
             ),
-
             const SizedBox(width: 10),
-
             Expanded(
               child: SearchModeButton(
                 icon: Icons.person_outline,
@@ -343,7 +388,9 @@ class _SearchScreenState extends State<SearchScreen> {
 
   Widget _buildActorResults() {
     if (actorResults.isEmpty) {
-      return _buildEmptyResult('Find your actors by Type name');
+      return _buildEmptyResult(
+        'Find your actors by Type name',
+      );
     }
 
     return ListView.separated(
@@ -356,9 +403,7 @@ class _SearchScreenState extends State<SearchScreen> {
 
         return ActorTile(
           actor: actor,
-          onTap: () {
-            // هنضيف Actor Details / Movies لاحقًا.
-          },
+          onTap: () => _openActorMovies(actor),
         );
       },
     );
@@ -369,11 +414,18 @@ class _SearchScreenState extends State<SearchScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Image.asset('assets/images/no-results 1.png', width: 75, height: 75),
+          Image.asset(
+            'assets/images/no-results 1.png',
+            width: 75,
+            height: 75,
+          ),
           Text(
             text,
             textAlign: TextAlign.center,
-            style: const TextStyle(color: Colors.white38, fontSize: 10),
+            style: const TextStyle(
+              color: Colors.white38,
+              fontSize: 10,
+            ),
           ),
         ],
       ),

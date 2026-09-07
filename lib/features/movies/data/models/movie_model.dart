@@ -1,3 +1,4 @@
+import '../../../../core/constants/api_constants.dart';
 import '../../domain/entities/movie.dart';
 
 class MovieModel extends Movie {
@@ -31,6 +32,7 @@ class MovieModel extends Movie {
     );
   }
 
+  // Firestore
   factory MovieModel.fromJson(Map<String, dynamic> json) {
     return MovieModel(
       id: json['id'] as String? ?? '',
@@ -44,6 +46,77 @@ class MovieModel extends Movie {
       certification: json['certification'] as String? ?? '',
       description: json['description'] as String? ?? '',
       premium: json['premium'] as bool? ?? false,
+    );
+  }
+
+  // TMDB - Popular Movies
+  factory MovieModel.fromTmdbJson(Map<String, dynamic> json) {
+    final posterPath = json['poster_path'] as String?;
+    final backdropPath = json['backdrop_path'] as String?;
+    final releaseDate = json['release_date'] as String?;
+    final voteAverage = (json['vote_average'] as num?)?.toDouble() ?? 0.0;
+
+    return MovieModel(
+      id: (json['id'] as num?)?.toString() ?? '',
+      title: json['title'] as String? ?? '',
+      posterUrl: posterPath != null
+          ? '${ApiConstants.imageBaseUrl}$posterPath'
+          : '',
+      backdropUrl: backdropPath != null
+          ? '${ApiConstants.imageBaseUrl}$backdropPath'
+          : '',
+      year: releaseDate != null && releaseDate.length >= 4
+          ? releaseDate.substring(0, 4)
+          : '',
+      duration: '',
+      genre: '',
+      rating: voteAverage.toStringAsFixed(1),
+      certification: '',
+      description: json['overview'] as String? ?? '',
+      premium: false,
+    );
+  }
+
+  // TMDB - Movie Details
+  factory MovieModel.fromTmdbDetailsJson(Map<String, dynamic> json,) {
+    final posterPath = json['poster_path'] as String?;
+    final backdropPath = json['backdrop_path'] as String?;
+    final releaseDate = json['release_date'] as String?;
+
+    final voteAverage =
+        (json['vote_average'] as num?)?.toDouble() ?? 0.0;
+
+    final runtime = json['runtime'] as int?;
+
+    final genres = (json['genres'] as List<dynamic>? ?? [])
+        .map(
+          (genre) => genre['name'] as String? ?? '',
+    )
+        .where(
+          (name) => name.isNotEmpty,
+    )
+        .join(', ');
+
+    return MovieModel(
+      id: (json['id'] as num?)?.toString() ?? '',
+      title: json['title'] as String? ?? '',
+      posterUrl: posterPath != null
+          ? '${ApiConstants.imageBaseUrl}$posterPath'
+          : '',
+      backdropUrl: backdropPath != null
+          ? '${ApiConstants.imageBaseUrl}$backdropPath'
+          : '',
+      year: releaseDate != null && releaseDate.length >= 4
+          ? releaseDate.substring(0, 4)
+          : '',
+      duration: runtime != null
+          ? '$runtime min'
+          : '',
+      genre: genres,
+      rating: voteAverage.toStringAsFixed(1),
+      certification: '',
+      description: json['overview'] as String? ?? '',
+      premium: false,
     );
   }
 

@@ -3,4 +3,4 @@
 A new Flutter project.
 
 ## 🎥 App Demo
-https://github.com/user-attachments/assets/688bfc4e-2db6-4c0c-b1f3-18b53d46739a
+https://github.com/user-attachments/assets/36820925-a8d8-4def-85da-08d790c3252e

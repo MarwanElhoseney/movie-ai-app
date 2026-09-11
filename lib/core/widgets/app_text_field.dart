@@ -6,6 +6,7 @@ class AppTextField extends StatelessWidget {
   final String label;
   final String hint;
   final bool obscureText;
+  final bool readOnly;
   final Widget? suffixIcon;
   final TextInputType? keyboardType;
   final String? Function(String?)? validator;
@@ -16,6 +17,7 @@ class AppTextField extends StatelessWidget {
     required this.label,
     required this.hint,
     this.obscureText = false,
+    this.readOnly = false,
     this.suffixIcon,
     this.keyboardType,
     this.validator,
@@ -41,10 +43,14 @@ class AppTextField extends StatelessWidget {
         TextFormField(
           controller: controller,
           obscureText: obscureText,
+          readOnly: readOnly,
           keyboardType: keyboardType,
           validator: validator,
 
-          style: const TextStyle(color: Colors.white, fontSize: 12),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+          ),
 
           decoration: InputDecoration(
             hintText: hint,
@@ -63,22 +69,30 @@ class AppTextField extends StatelessWidget {
 
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
-              borderSide: const BorderSide(color: AppColors.cardBorder),
+              borderSide: const BorderSide(
+                color: AppColors.cardBorder,
+              ),
             ),
 
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
-              borderSide: const BorderSide(color: AppColors.primary),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+              ),
             ),
 
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
-              borderSide: const BorderSide(color: Colors.red),
+              borderSide: const BorderSide(
+                color: Colors.red,
+              ),
             ),
 
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(25),
-              borderSide: const BorderSide(color: Colors.red),
+              borderSide: const BorderSide(
+                color: Colors.red,
+              ),
             ),
           ),
         ),

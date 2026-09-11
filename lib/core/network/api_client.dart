@@ -2,11 +2,16 @@ import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import '../constants/api_constants.dart';
+import 'tmdb_preferences.dart';
 
 class ApiClient {
   late final Dio dio;
 
-  ApiClient() {
+  final TmdbPreferences preferences;
+
+  ApiClient({
+    TmdbPreferences? preferences,
+  }) : preferences = preferences ?? TmdbPreferences.instance {
     final token = dotenv.env['TMDB_ACCESS_TOKEN'];
 
     dio = Dio(
@@ -20,10 +25,18 @@ class ApiClient {
     );
   }
 
-  Future<Response<dynamic>> get(
-    String path, {
+  Future<Response<dynamic>> get(String path, {
     Map<String, dynamic>? queryParameters,
   }) {
-    return dio.get(path, queryParameters: queryParameters);
+    final params = {
+      'language': preferences.languageCode,
+      'region': preferences.countryCode,
+      ...?queryParameters,
+    };
+
+    return dio.get(
+      path,
+      queryParameters: params,
+    );
   }
 }

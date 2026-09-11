@@ -4,7 +4,11 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../core/constants/tmdb_settings.dart';
 import '../../../core/navigation/main_shell/view/main_shell.dart';
+import '../../../core/network/tmdb_preferences.dart';
+import '../../profile/data/repositories/profile_repository_impl.dart';
+import '../../profile/domain/usecases/get_profile.dart';
 import '../../wishlist/view/wishlist_provider.dart';
 import '../domain/repositories/auth_repository_impl.dart';
 import '../domain/usecases/sign_in_with_google.dart';
@@ -37,8 +41,19 @@ class _AuthScreenState extends State<AuthScreen> {
 
       final user = await signInWithGoogle();
 
-      if (!mounted) return;
+      try {
+        final profileRepository = ProfileRepositoryImpl();
+        final getProfile = GetProfile(profileRepository);
 
+        final profile = await getProfile(user.id);
+
+        TmdbPreferences.instance.update(
+          language: TmdbSettings.getLanguageCode(profile.language),
+          country: TmdbSettings.getCountryCode(profile.country),
+        );
+      } catch (e) {}
+
+      if (!mounted) return;
 
       Navigator.pushReplacement(
         context,
@@ -79,7 +94,6 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     }
   }
-
   Future<void> _showMessageDialog({
     required String title,
     required String message,

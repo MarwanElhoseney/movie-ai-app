@@ -3,17 +3,17 @@ import '../../../../core/network/api_client.dart';
 import '../models/movie_credit_model.dart';
 import 'movie_credits_remote_data_source.dart';
 
-class MovieCreditsRemoteDataSourceImpl implements MovieCreditsRemoteDataSource {
+class MovieCreditsRemoteDataSourceImpl
+    implements MovieCreditsRemoteDataSource {
   final ApiClient apiClient;
 
   MovieCreditsRemoteDataSourceImpl({ApiClient? apiClient})
-    : apiClient = apiClient ?? ApiClient();
+      : apiClient = apiClient ?? ApiClient();
 
   @override
-  Future<List<MovieCreditModel>> getMovieCredits(String movieId) async {
+  Future<List<MovieCreditModel>> getMovieCredits(String movieId,) async {
     final response = await apiClient.get(
       ApiConstants.movieCredits(movieId),
-      queryParameters: {'language': 'en-US'},
     );
 
     final data = response.data as Map<String, dynamic>;
@@ -22,13 +22,22 @@ class MovieCreditsRemoteDataSourceImpl implements MovieCreditsRemoteDataSource {
     final crew = data['crew'] as List<dynamic>? ?? [];
 
     final castModels = cast.map(
-      (item) => MovieCreditModel.fromTmdbCastJson(item as Map<String, dynamic>),
+          (item) =>
+          MovieCreditModel.fromTmdbCastJson(
+            item as Map<String, dynamic>,
+          ),
     );
 
     final crewModels = crew.map(
-      (item) => MovieCreditModel.fromTmdbCrewJson(item as Map<String, dynamic>),
+          (item) =>
+          MovieCreditModel.fromTmdbCrewJson(
+            item as Map<String, dynamic>,
+          ),
     );
 
-    return [...castModels, ...crewModels];
+    return [
+      ...castModels,
+      ...crewModels,
+    ];
   }
 }

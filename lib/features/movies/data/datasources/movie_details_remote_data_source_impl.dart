@@ -20,14 +20,11 @@ class MovieDetailsRemoteDataSourceImpl implements MovieDetailsRemoteDataSource {
   Future<MovieModel> getMovieDetails(String movieId) async {
     final response = await apiClient.get(
       ApiConstants.movieDetails(movieId),
-      queryParameters: {'language': 'en-US'},
     );
 
     final movie = MovieModel.fromTmdbDetailsJson(
       response.data as Map<String, dynamic>,
-    );
-
-    final certification = await certificationDataSource.getMovieCertification(
+    );inal certification = await certificationDataSource.getMovieCertification(
       movieId,
     );
 

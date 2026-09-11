@@ -7,19 +7,27 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final ApiClient apiClient;
 
   HomeRemoteDataSourceImpl({ApiClient? apiClient})
-    : apiClient = apiClient ?? ApiClient();
+      : apiClient = apiClient ?? ApiClient();
 
   @override
   Future<List<MovieModel>> getHomeMovies() async {
     final response = await apiClient.get(
       ApiConstants.popularMovies,
-      queryParameters: {'language': 'en-US', 'page': 1},
+      queryParameters: {
+        'page': 1,
+      },
     );
 
-    final results = response.data['results'] as List<dynamic>? ?? [];
+    final results =
+        response.data['results'] as List<dynamic>? ?? [];
 
     return results
-        .map((json) => MovieModel.fromTmdbJson(json as Map<String, dynamic>))
+        .map(
+          (json) =>
+          MovieModel.fromTmdbJson(
+            json as Map<String, dynamic>,
+          ),
+    )
         .toList();
   }
 
@@ -28,7 +36,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     final response = await apiClient.get(
       ApiConstants.discoverMovies,
       queryParameters: {
-        'language': 'en-US',
         'page': 1,
         'with_genres': genreId,
         'sort_by': 'popularity.desc',
@@ -36,10 +43,16 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       },
     );
 
-    final results = response.data['results'] as List<dynamic>? ?? [];
+    final results =
+        response.data['results'] as List<dynamic>? ?? [];
 
     return results
-        .map((json) => MovieModel.fromTmdbJson(json as Map<String, dynamic>))
+        .map(
+          (json) =>
+          MovieModel.fromTmdbJson(
+            json as Map<String, dynamic>,
+          ),
+    )
         .toList();
   }
 }

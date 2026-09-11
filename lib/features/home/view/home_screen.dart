@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/features/home/view/popular_movies_screen.dart';
 import 'package:movie_app/features/home/view/widgets/category_list.dart';
 import 'package:movie_app/features/home/view/widgets/featured_movie.dart';
 import 'package:movie_app/features/home/view/widgets/home_header.dart';
@@ -20,10 +21,12 @@ import '../domain/usecases/get_movies_by_genre.dart';
 
 class HomeScreen extends StatefulWidget {
   final User user;
+  final VoidCallback? onProfileTap;
 
   const HomeScreen({
     super.key,
     required this.user,
+    this.onProfileTap,
   });
 
   @override
@@ -40,7 +43,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   late Future<List<Movie>> _categoryMoviesFuture;
 
-  @override
   @override
   void initState() {
     super.initState();
@@ -230,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       delegate: SliverChildListDelegate([
                         HomeHeader(
                           user: widget.user,
-                          onProfileTap: () {},
+                          onProfileTap: widget.onProfileTap,
                           onWishlistTap: () {},
                         ),
 
@@ -289,7 +291,21 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const Spacer(),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: () async {
+                                final movies = await _categoryMoviesFuture;
+
+                                if (!context.mounted) return;
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        PopularMoviesScreen(
+                                          movies: movies,
+                                        ),
+                                  ),
+                                );
+                              },
                               child: const Text(
                                 'See All',
                                 style: TextStyle(

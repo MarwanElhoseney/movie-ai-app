@@ -8,7 +8,7 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
   final ApiClient apiClient;
 
   SearchRemoteDataSourceImpl({ApiClient? apiClient})
-    : apiClient = apiClient ?? ApiClient();
+      : apiClient = apiClient ?? ApiClient();
 
   @override
   Future<List<MovieModel>> searchMovies(String query) async {
@@ -16,16 +16,21 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       ApiConstants.searchMovies,
       queryParameters: {
         'query': query.trim(),
-        'language': 'en-US',
         'page': 1,
         'include_adult': false,
       },
     );
 
-    final results = response.data['results'] as List<dynamic>? ?? [];
+    final results =
+        response.data['results'] as List<dynamic>? ?? [];
 
     return results
-        .map((json) => MovieModel.fromTmdbJson(json as Map<String, dynamic>))
+        .map(
+          (json) =>
+          MovieModel.fromTmdbJson(
+            json as Map<String, dynamic>,
+          ),
+    )
         .toList();
   }
 
@@ -35,16 +40,21 @@ class SearchRemoteDataSourceImpl implements SearchRemoteDataSource {
       ApiConstants.searchActors,
       queryParameters: {
         'query': query.trim(),
-        'language': 'en-US',
         'page': 1,
         'include_adult': false,
       },
     );
 
-    final results = response.data['results'] as List<dynamic>? ?? [];
+    final results =
+        response.data['results'] as List<dynamic>? ?? [];
 
     return results
-        .map((json) => ActorModel.fromTmdbJson(json as Map<String, dynamic>))
+        .map(
+          (json) =>
+          ActorModel.fromTmdbJson(
+            json as Map<String, dynamic>,
+          ),
+    )
         .toList();
   }
 }

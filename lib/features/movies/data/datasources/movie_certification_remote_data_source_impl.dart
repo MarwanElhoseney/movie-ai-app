@@ -1,5 +1,6 @@
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../../core/network/tmdb_preferences.dart';
 import 'movie_certification_remote_data_source.dart';
 
 class MovieCertificationRemoteDataSourceImpl
@@ -17,11 +18,12 @@ class MovieCertificationRemoteDataSourceImpl
 
     final results = response.data['results'] as List<dynamic>? ?? [];
 
+    final countryCode = TmdbPreferences.instance.countryCode;
+
     for (final result in results) {
       final resultMap = result as Map<String, dynamic>;
 
-      // هنستخدم تصنيف الولايات المتحدة
-      if (resultMap['iso_3166_1'] != 'US') {
+      if (resultMap['iso_3166_1'] != countryCode) {
         continue;
       }
 

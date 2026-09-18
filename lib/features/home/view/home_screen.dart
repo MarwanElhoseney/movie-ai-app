@@ -7,6 +7,7 @@ import 'package:movie_app/features/home/view/widgets/popular_movies.dart';
 import 'package:movie_app/features/home/view/widgets/search_preview.dart';
 import 'package:provider/provider.dart';
 
+import '../../ai_chat/view/movie_ai_chat_screen.dart';
 import '../../auth/domain/entities/user.dart';
 import '../../movie_details/view/movie_details_screen.dart';
 import '../../movies/domain/entities/movie.dart';
@@ -96,6 +97,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  void _openMovieAI() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const MovieAIChatScreen(),
+      ),
+    );
+  }
   void _selectCategory(int index) {
     setState(() {
       selectedCategory = index;
@@ -243,7 +252,50 @@ class _HomeScreenState extends State<HomeScreen> {
                           onFilterTap: _showSearchFilter,
                         ),
 
+                        const SizedBox(height: 12),
+
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: GestureDetector(
+                            onTap: _openMovieAI,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF292736),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: const Color(0xFF00D5E6).withOpacity(
+                                      0.35),
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.smart_toy_outlined,
+                                    color: Color(0xFF00D5E6),
+                                    size: 16,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Text(
+                                    'Movie AI Assistant',
+                                    style: TextStyle(
+                                      color: Color(0xFF00D5E6),
+                                      fontSize: 9,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
                         const SizedBox(height: 18),
+
 
                         FeaturedMovie(
                           movie: movies.first,

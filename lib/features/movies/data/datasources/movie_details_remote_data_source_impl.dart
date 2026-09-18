@@ -24,7 +24,8 @@ class MovieDetailsRemoteDataSourceImpl implements MovieDetailsRemoteDataSource {
 
     final movie = MovieModel.fromTmdbDetailsJson(
       response.data as Map<String, dynamic>,
-    );inal certification = await certificationDataSource.getMovieCertification(
+    );
+    final certification = await certificationDataSource.getMovieCertification(
       movieId,
     );
 
